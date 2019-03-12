@@ -51,19 +51,21 @@ PrimusWebpackPlugin.prototype.apply = function(compiler) {
     });
 
     compiler.hooks.compilation.tap('htmlWebpackPluginBeforeHtmlGeneration', compilation => {
-        compilation.hooks.htmlWebpackPluginBeforeHtmlProcessing.tapAsync('PrimusWebpackPlugin', (data, cb) => {
-            const filename = this.options.filename.replace(
-                '[hash]',
-                compilation.hash
-            );
-            const publicPath = compilation.outputOptions.publicPath || "";
+        if (compilation.hooks.htmlWebpackPluginBeforeHtmlProcessing) { // make sure htmlwebpack plugin is installed, before using that.
+            compilation.hooks.htmlWebpackPluginBeforeHtmlProcessing.tapAsync('PrimusWebpackPlugin', (data, cb) => {
+                const filename = this.options.filename.replace(
+                    '[hash]',
+                    compilation.hash
+                );
+                const publicPath = compilation.outputOptions.publicPath || "";
 
 
-            // We are putting Primus script before other JavaScript files
-            // because we are expecting other bundles to use Primus
-            data.assets.js.unshift(`${publicPath}${filename}`)
-            cb(null, data);
-        })
+                // We are putting Primus script before other JavaScript files
+                // because we are expecting other bundles to use Primus
+                data.assets.js.unshift(`${publicPath}${filename}`)
+                cb(null, data);
+            })
+        }
     });
 }
 
